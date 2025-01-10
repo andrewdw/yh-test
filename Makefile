@@ -1,7 +1,7 @@
 DOCKER_COMPOSE := -f docker-compose.yaml
 
 
-.PHONY: dev dev-down docker-compose-up docker-compose-up-debug docker-compose-down dev-purge migrate migrate-down harvest
+.PHONY: dev dev-down docker-compose-up docker-compose-up-debug docker-compose-down dev-purge migrate migrate-down harvest sleep init
 
 docker-compose-up:
 	docker compose ${DOCKER_COMPOSE} up -d
@@ -28,6 +28,12 @@ migrate-down:
 
 harvest:
 	(cd backend && pnpm harvest)
+
+sleep:
+	sleep 10
+
+init: dev sleep migrate sleep harvest
+
 
 # debug-postgres: ## Connect to Postgres container shell
 # 	docker exec -it postgres-1 /bin/bash
