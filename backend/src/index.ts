@@ -163,7 +163,9 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
 
     // end performance timer
     const end = performance.now();
-    console.log(`Time taken: ${Math.round(end - start)} milliseconds`);
+    const responseTime = Math.round(end - start);
+    response.meta.response_time_ms = responseTime;
+    console.log(`Time taken: ${responseTime} milliseconds`);
 
     // send response
     res.json(response);

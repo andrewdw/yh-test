@@ -45,7 +45,7 @@ export async function up(knex: Knex): Promise<void> {
     table.integer("group_selectable_dishes_count").unsigned().notNullable().defaultTo(0);
 
     // since a lot of columns are booleans masquerading as integers, we'll add some check constraints
-    // to ensure the integers are only 0 or 1 where applicable and can remove them if needed (e.g status needs to also be 3)
+    // to ensure the integers are only 0 or 1 where applicable and can remove them if needed (e.g status needs to also be 0, 1, or 2)
     table.check(`"display_text" IN (0, 1)`);
     table.check(`"is_vegan" IN (0, 1)`);
     table.check(`"is_vegetarian" IN (0, 1)`);

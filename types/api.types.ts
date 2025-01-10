@@ -22,6 +22,7 @@ export type SetMenusResponse = {
     per_page: number;
     to: number;
     total: number;
+    response_time_ms?: number;
   };
 };
 

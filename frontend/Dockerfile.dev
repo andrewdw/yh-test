@@ -1,0 +1,24 @@
+FROM node:20-alpine
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
+# Add a work directory
+WORKDIR /app/frontend
+
+# Copy app files
+COPY frontend ./
+# Cache and Install dependencies
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+
+# Install npm packages
+RUN npm install -g pnpm
+
+RUN pnpm install
+
+# Expose the development server port
+EXPOSE 5173
+
+# Set the default command
+CMD ["pnpm", "dev", "--host"]
