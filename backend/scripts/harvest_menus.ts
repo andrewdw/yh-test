@@ -1,8 +1,8 @@
 import { Knex, knex } from 'knex';
 import axios from 'axios';
-import { ApiResponse, Cuisine, SetMenu } from '../../types/menu.types';
 import { TABLE_NAME_CUISINE, TABLE_NAME_SET_MENU, TABLE_NAME_SET_MENU_CUISINE, TABLE_NAME_MENU_GROUP, TABLE_NAME_GROUP } from '../constants';
 import knexConfig from '../knexfile';
+import { Cuisine, SetMenu, SetMenusResponse } from '../../types/harvester.types';
 
 const db: Knex = knex(knexConfig.development);
 
@@ -23,9 +23,9 @@ function slugify(input: string): string {
     .replace(/\s+/g, '-'); // replace spaces with hyphens
 }
 
-async function fetchPage(page: number): Promise<ApiResponse | null> {
+async function fetchPage(page: number): Promise<SetMenusResponse | null> {
   try {
-    const response = await axios.get<ApiResponse>(`${BASE_URL}?page=${page}`);
+    const response = await axios.get<SetMenusResponse>(`${BASE_URL}?page=${page}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching page ${page}:`, error instanceof Error ? error.message : error);

@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import knex from 'knex';
-import knexConfig from './knexfile';
-import { Cuisine, Menu, SetMenusResponse } from '../types/api.types';
-import { DB_Cuisine, DB_SetMenu } from '../types/db.types';
+import knexConfig from '../knexfile';
+import { Cuisine, Menu, SetMenusResponse } from '../../types/api.types';
+import { DB_Cuisine, DB_SetMenu } from '../../types/db.types';
 // init knex
 const db = knex(knexConfig.development);
 

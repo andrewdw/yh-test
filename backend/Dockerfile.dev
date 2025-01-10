@@ -1,0 +1,32 @@
+# Use a Node.js 20 base image
+FROM node:20-alpine
+
+# Set the working directory inside the container
+WORKDIR /app/backend
+
+# set docker env to development
+ENV ENV=development
+
+COPY backend /app/backend
+# Copy package files - note the context is the parent directory
+COPY backend/package.json backend/pnpm-lock.yaml ./
+
+# Install npm packages
+RUN npm install -g pnpm
+
+# Setup pnpm global directory -- used for installing global packages
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PNPM_HOME}:$PATH"
+ENV SHELL="/bin/sh"
+RUN pnpm setup
+
+# RUN apk add --no-cache python3 make g++ gcc
+
+RUN pnpm install
+RUN pnpm install -g tsx
+
+# Make port 50052 available to the world outside this container
+EXPOSE 50052
+
+# Set the command to run the application in development mode
+CMD ["pnpm", "dev"]

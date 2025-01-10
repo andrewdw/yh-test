@@ -9,13 +9,30 @@ services:
       POSTGRES_DB: yhangry
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    #
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U yhangry"]
       interval: 5s
       timeout: 5s
       retries: 5
-
-volumes:
-  postgres_data:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.dev
+    container_name: backend
+    # working_dir: /app/backend
+    environment:
+      - ENV=development
+      - PORT=3031
+      - DB_HOST=postgres
+      - DB_NAME=yhangry
+      - DB_USER=yhangry
+      - DB_PASSWORD=yhangry
+      - DB_PORT=5432
+    volumes:
+      - ./backend/src:/app/backend/src
+      - ./types:/app/types
+    ports:
+      - '3031:3031'
