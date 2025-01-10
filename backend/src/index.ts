@@ -3,6 +3,7 @@ import knex from 'knex';
 import knexConfig from '../knexfile';
 import { Cuisine, Menu, SetMenusResponse } from '../../types/api.types';
 import { DB_Cuisine, DB_SetMenu } from '../../types/db.types';
+
 // init knex
 const db = knex(knexConfig.development);
 
@@ -10,15 +11,63 @@ const db = knex(knexConfig.development);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const getBasePath = (req: Request) => `${req.protocol}://${req.get('host')}${req.path}`;
+
+// helper function to generate page links
+function generatePageLinks(currentPage: number, lastPage: number, path: string): { url: string | null; label: string; active: boolean; }[] {
+  const links = [];
+  // previous link
+  links.push({
+    url: currentPage > 1 ? `${path}?page=${currentPage - 1}` : null,
+    label: '&laquo; Previous',
+    active: false
+  });
+  // page numbers
+  for (let i = 1; i <= lastPage; i++) {
+    links.push({
+      url: `${path}?page=${i}`,
+      label: i.toString(),
+      active: i === currentPage
+    });
+  }
+  // next link
+  links.push({
+    url: currentPage < lastPage ? `${path}?page=${currentPage + 1}` : null,
+    label: 'Next &raquo;',
+    active: false
+  });
+
+  return links;
+}
+
 app.get('/api/set-menus', async (req: Request, res: Response) => {
   try {
     // start performance timer
     const start = performance.now();
-    const { cuisineSlug, page = 1, pageSize = 10 } = req.query;
+    const { cuisineSlug, page = 1, pageSize = 20 } = req.query;
     const slug = cuisineSlug ?? '';
+    const currentPage = Number(page);
+    const perPage = Number(pageSize);
 
     // calculate offset for pagination
-    const offset = (Number(page) - 1) * Number(pageSize);
+    const offset = (currentPage - 1) * perPage;
+
+    // get total count for pagination
+    const totalCountQuery = db('set_menus')
+      .count('* as count')
+      .where('status', 1)
+      .modify((queryBuilder) => {
+        if (slug) {
+          queryBuilder
+            .join('set_menu_cuisines', 'set_menus.id', 'set_menu_cuisines.set_menu_id')
+            .join('cuisines', 'set_menu_cuisines.cuisine_id', 'cuisines.id')
+            .where('cuisines.slug', slug);
+        }
+      });
+
+    const [{ count }] = await totalCountQuery;
+    const total = Number(count);
+    const lastPage = Math.ceil(total / perPage);
 
     // build query to get filtered set menus
     const setMenusQuery = db('set_menus')
@@ -43,7 +92,7 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
       })
       .groupBy('set_menus.id')
       .orderBy('set_menus.number_of_orders', 'desc')
-      .limit(Number(pageSize))
+      .limit(perPage)
       .offset(offset);
 
     // get set menus
@@ -70,6 +119,9 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
     // get cuisine filters
     const cuisineFilters = await cuisineFiltersQuery;
 
+    // base path for pagination URLs
+    const basePath = getBasePath(req);
+
     // construct response
     const response: SetMenusResponse = {
       filters: {
@@ -91,6 +143,22 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
           slug: cuisine.slug,
         })),
       })),
+      links: {
+        first: `${basePath}?page=1`,
+        last: `${basePath}?page=${lastPage}`,
+        prev: currentPage > 1 ? `${basePath}?page=${currentPage - 1}` : null,
+        next: currentPage < lastPage ? `${basePath}?page=${currentPage + 1}` : null,
+      },
+      meta: {
+        current_page: currentPage,
+        from: offset + 1,
+        last_page: lastPage,
+        links: generatePageLinks(currentPage, lastPage, basePath),
+        path: basePath,
+        per_page: perPage,
+        to: Math.min(offset + perPage, total),
+        total,
+      },
     };
 
     // end performance timer
