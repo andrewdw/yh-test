@@ -10,7 +10,7 @@ const db = knex(knexConfig.development);
 
 // init express
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3031;
 
 // enable cors -- this should obviously be fine tuned for production
 app.use(cors());

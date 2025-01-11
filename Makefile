@@ -1,7 +1,6 @@
 DOCKER_COMPOSE := -f docker-compose.yaml
 
-
-.PHONY: dev dev-down docker-compose-up docker-compose-up-debug docker-compose-down dev-purge migrate migrate-down harvest sleep init
+.PHONY: dev dev-down docker-compose-up docker-compose-up-debug docker-compose-down dev-purge migrate migrate-down harvest sleep init docker-migrate docker-harvest
 
 docker-compose-up:
 	docker compose ${DOCKER_COMPOSE} up -d
@@ -19,25 +18,40 @@ dev-down: docker-compose-down
 dev-purge: ## Stop containers and remove all images
 	docker compose ${DOCKER_COMPOSE} down --rmi all
 
-# cd into backend and run
-migrate:
-	(cd backend && pnpm migrate)
-
-migrate-down:
-	(cd backend && pnpm migrate:down)
-
-harvest:
-	(cd backend && pnpm harvest)
-
 sleep:
 	sleep 10
 
-init: dev sleep migrate sleep harvest
+init: dev migrate harvest
 
+migrate:
+	docker build -f backend/Dockerfile.dev -t yhangry-tools .
+	docker run --rm \
+		--network yhangry_default \
+		-e DB_HOST=postgres \
+		-e DB_NAME=yhangry \
+		-e DB_USER=yhangry \
+		-e DB_PASSWORD=yhangry \
+		-e DB_PORT=5432 \
+		yhangry-tools migrate
 
-# debug-postgres: ## Connect to Postgres container shell
-# 	docker exec -it postgres-1 /bin/bash
+migrate-down:
+	docker build -f backend/Dockerfile.dev -t yhangry-tools .
+	docker run --rm \
+		--network yhangry_default \
+		-e DB_HOST=postgres \
+		-e DB_NAME=yhangry \
+		-e DB_USER=yhangry \
+		-e DB_PASSWORD=yhangry \
+		-e DB_PORT=5432 \
+		yhangry-tools migrate:down
 
-
-# logs-postgres: ## Stream Postgres container logs
-# 	docker logs --follow postgres-1
+harvest:
+	docker build -f backend/Dockerfile.dev -t yhangry-tools .
+	docker run --rm \
+		--network yhangry_default \
+		-e DB_HOST=postgres \
+		-e DB_NAME=yhangry \
+		-e DB_USER=yhangry \
+		-e DB_PASSWORD=yhangry \
+		-e DB_PORT=5432 \
+		yhangry-tools harvest

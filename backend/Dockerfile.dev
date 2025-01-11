@@ -25,8 +25,7 @@ RUN pnpm setup
 RUN pnpm install
 RUN pnpm install -g tsx
 
-# Make port 50052 available to the world outside this container
-EXPOSE 50052
-
-# Set the command to run the application in development mode
-CMD ["pnpm", "dev"]
+# Use entrypoint to allow different commands
+ENTRYPOINT ["pnpm", "run"]
+# Default to dev if no command specified
+CMD ["dev"]

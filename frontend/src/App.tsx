@@ -14,20 +14,25 @@ const fetchMenus = async ({
   perPage?: number;
   cuisineSlug?: string;
 }) => {
-  //localhost:3000/api/set-menus
-  let url = `http://localhost:3000/api/set-menus?page=${page}&perPage=${perPage}`;
-  if (cuisineSlug) {
-    url += `&cuisineSlug=${cuisineSlug}`;
+  try {
+    //localhost:3000/api/set-menus
+    let url = `http://localhost:3031/api/set-menus?page=${page}&perPage=${perPage}`;
+    if (cuisineSlug) {
+      url += `&cuisineSlug=${cuisineSlug}`;
+    }
+    const response = await fetch(url);
+    const menus = await response.json();
+    return menus;
+  } catch (error) {
+    console.error(error);
+    return undefined;
   }
-  const response = await fetch(url);
-  const menus = await response.json();
-  return menus;
 };
 
 export const App = () => {
-  const [menuRes, setMenuRes] = useState<SetMenusResponse | undefined>(
-    undefined
-  );
+  const [menuRes, setMenuRes] = useState<
+    (SetMenusResponse & { error?: string }) | undefined
+  >(undefined);
 
   const filter = useFilterStore((state) => state.filter);
 
@@ -59,8 +64,20 @@ export const App = () => {
 
   const showLoadMore = useMemo(() => {
     if (!menuRes) return false;
-    return menuRes.meta.current_page < menuRes.meta.last_page;
+    return menuRes?.meta?.current_page < menuRes?.meta?.last_page;
   }, [menuRes]);
+
+  if (menuRes?.error)
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-lg">{menuRes?.error}</p>
+        <p className="text-sm text-gray-500">
+          Database likely not initialized. Run `make migrate` and `make harvest`
+          to initialize the database.
+        </p>
+      </div>
+    );
 
   return (
     // main container
@@ -83,7 +100,7 @@ export const App = () => {
         </div>
         {/* menu items */}
         <div className="grid mt-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {menuRes?.setMenus.map((menu) => (
+          {menuRes?.setMenus?.map((menu) => (
             <MenuItem key={menu.name} menu={menu} />
           ))}
         </div>
@@ -101,7 +118,8 @@ export const App = () => {
         {/* footer */}
         <div className="flex flex-row justify-center">
           <p className="text-sm mt-4 text-gray-500">
-            Showing {menuRes?.setMenus.length} of {menuRes?.meta.total} menus
+            Showing {menuRes?.setMenus?.length || 0} of{" "}
+            {menuRes?.meta?.total || 0} menus
           </p>
         </div>
         {menuRes?.meta.response_time_ms && (

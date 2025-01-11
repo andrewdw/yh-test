@@ -25,7 +25,7 @@ services:
     # working_dir: /app/backend
     environment:
       - ENV=development
-      - PORT=3000
+      - PORT=3031
       - DB_HOST=postgres
       - DB_NAME=yhangry
       - DB_USER=yhangry
@@ -35,14 +35,14 @@ services:
       - ./backend/src:/app/backend/src
       - ./types:/app/types
     ports:
-      - '3000:3000'
+      - '3031:3031'
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile.dev
     container_name: frontend
     ports:
-      - '5173:5173'
+      - '3030:3030'
     volumes:
       - ./frontend/src:/app/frontend/src
       - ./types:/app/types
