@@ -27,6 +27,10 @@ _Note: the docker commands inside the Makefile use `docker compose` instead of `
    docker build -f backend/Dockerfile.dev -t yhangry-tools . && docker run --rm --network yhangry_default -e DB_HOST=postgres -e DB_NAME=yhangry -e DB_USER=yhangry -e DB_PASSWORD=yhangry -e DB_PORT=5432 yhangry-tools harvest
    ```
    will fetch data from the staging endpoint
+   
+**Teardown** 
+
+1. Stop and destroy the docker containers with `make dev-purge`
 
 ## Setup (without Docker)
 
