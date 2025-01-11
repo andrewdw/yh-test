@@ -17,27 +17,8 @@ _Note: the docker commands inside the Makefile use `docker compose` instead of `
 **Running step-by-step**
 
 1. `make dev` or `docker compose -f docker-compose.yaml up -d` will start the frontend, backend and database
-2. `make migrate` or `docker build -f backend/Dockerfile.dev -t yhangry-tools .
-	docker run --rm \
-		--network yhangry_default \
-		-e DB_HOST=postgres \
-		-e DB_NAME=yhangry \
-		-e DB_USER=yhangry \
-		-e DB_PASSWORD=yhangry \
-		-e DB_PORT=5432 \
-		yhangry-tools migrate
-`
-   will create the database schema
-3. `make harvest` or `docker build -f backend/Dockerfile.dev -t yhangry-tools .
-docker run --rm \
-	--network yhangry_default \
-	-e DB_HOST=postgres \
-	-e DB_NAME=yhangry \
-	-e DB_USER=yhangry \
-	-e DB_PASSWORD=yhangry \
-	-e DB_PORT=5432 \
-	yhangry-tools harvest`
-will fetch data from the staging endpoint
+2. `make migrate` or `docker build -f backend/Dockerfile.dev -t yhangry-tools . && docker run --rm --network yhangry_default -e DB_HOST=postgres -e DB_NAME=yhangry -e DB_USER=yhangry -e DB_PASSWORD=yhangry -e DB_PORT=5432 yhangry-tools migrate` will create the database schema
+3. `make harvest` or `docker build -f backend/Dockerfile.dev -t yhangry-tools . && docker run --rm --network yhangry_default -e DB_HOST=postgres -e DB_NAME=yhangry -e DB_USER=yhangry -e DB_PASSWORD=yhangry -e DB_PORT=5432 yhangry-tools harvest` will fetch data from the staging endpoint
 
 ## Setup (without Docker)
 
