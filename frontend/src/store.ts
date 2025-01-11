@@ -27,7 +27,7 @@ export interface GuestCountStoreProps {
   setGuestCount: (guestCount: number) => void;
 }
 export const useGuestCountStore = create(immer<GuestCountStoreProps>(set => ({
-  guestCount: 1,
+  guestCount: 10,
   setGuestCount: (guestCount: number) => {
     set({ guestCount });
   },
