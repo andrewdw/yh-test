@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import knex from 'knex';
+import cors from 'cors';
 import knexConfig from '../knexfile';
 import { Cuisine, Menu, SetMenusResponse } from '../../types/api.types';
 import { DB_Cuisine, DB_SetMenu } from '../../types/db.types';
@@ -10,6 +11,9 @@ const db = knex(knexConfig.development);
 // init express
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// enable cors -- this should obviously be fine tuned for production
+app.use(cors());
 
 const getBasePath = (req: Request) => `${req.protocol}://${req.get('host')}${req.path}`;
 
@@ -44,13 +48,13 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
   try {
     // start performance timer
     const start = performance.now();
-    const { cuisineSlug, page = 1, pageSize = 20 } = req.query;
+    const { cuisineSlug, page = 1, perPage = 10 } = req.query;
     const slug = cuisineSlug ?? '';
     const currentPage = Number(page);
-    const perPage = Number(pageSize);
+    const itemsPerPage = Number(perPage);
 
     // calculate offset for pagination
-    const offset = (currentPage - 1) * perPage;
+    const offset = (currentPage - 1) * itemsPerPage;
 
     // get total count for pagination
     const totalCountQuery = db('set_menus')
@@ -67,7 +71,7 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
 
     const [{ count }] = await totalCountQuery;
     const total = Number(count);
-    const lastPage = Math.ceil(total / perPage);
+    const lastPage = Math.ceil(total / itemsPerPage);
 
     // build query to get filtered set menus
     const setMenusQuery = db('set_menus')
@@ -92,7 +96,7 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
       })
       .groupBy('set_menus.id')
       .orderBy('set_menus.number_of_orders', 'desc')
-      .limit(perPage)
+      .limit(itemsPerPage)
       .offset(offset);
 
     // get set menus
@@ -155,8 +159,8 @@ app.get('/api/set-menus', async (req: Request, res: Response) => {
         last_page: lastPage,
         links: generatePageLinks(currentPage, lastPage, basePath),
         path: basePath,
-        per_page: perPage,
-        to: Math.min(offset + perPage, total),
+        per_page: itemsPerPage,
+        to: Math.min(offset + itemsPerPage, total),
         total,
       },
     };
