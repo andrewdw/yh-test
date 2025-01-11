@@ -37,7 +37,7 @@ docker run --rm \
 	-e DB_PASSWORD=yhangry \
 	-e DB_PORT=5432 \
 	yhangry-tools harvest`
-   will fetch data from the stageing endpoint
+will fetch data from the staging endpoint
 
 ## Setup (without Docker)
 
@@ -58,7 +58,7 @@ Requirements:
 
 1. `cd frontend` and run `{pnpm|yarn|npm} install`, for example: `pnpm install`
 2. `{pnpm|yarn|npm} run dev` will start the server
-3. Front end will be avilable at `http://localhost:3030`
+3. Front end will be available at `http://localhost:3030`
 
 ## Some Notes:
 
@@ -66,7 +66,7 @@ Requirements:
 
 - Database is a basic Postgres 15 instance
 
-- No tests - Given more time I'd set up a proper test suite and refactor to allow for proper dependancy injection and mocking
+- No tests - Given more time I'd set up a proper test suite and refactor to allow for proper dependency injection and mocking
 
 ## Bonus Question Notes:
 
@@ -78,7 +78,7 @@ Requirements:
 - **How can you improve security and reduce latency?**
 
   - Regarding security we'd need to introduce a rate limit, similar to the staging service, as well as tightening up the allowed cross-domain origins (currently it's open).
-  - The Knex orm will already sanitize sql inputs but we can add some ligcal checks before we try to make db calls, such as rejecting anything over a certain length or anything with non-alphabetic characters
+  - The Knex orm will already sanitize sql inputs but we can add some logical checks before we try to make db calls, such as rejecting anything over a certain length or anything with non-alphabetic characters
 
 - **Use Redux for state management**
   - Although fantastic, Redux was a bit overkill for this usecase and opted to use a Zustand as a simple state manager
