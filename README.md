@@ -27,8 +27,16 @@ _Note: the docker commands inside the Makefile use `docker compose` instead of `
    docker build -f backend/Dockerfile.dev -t yhangry-tools . && docker run --rm --network yhangry_default -e DB_HOST=postgres -e DB_NAME=yhangry -e DB_USER=yhangry -e DB_PASSWORD=yhangry -e DB_PORT=5432 yhangry-tools harvest
    ```
    will fetch data from the staging endpoint
-   
-**Teardown** 
+
+**Stop services**
+
+1. Stop the services with `make dev-down`
+
+**Start services**
+
+1. Start the services again with `make dev`
+
+**Teardown**
 
 1. Stop and destroy the docker containers with `make dev-purge`
 
@@ -73,7 +81,7 @@ Requirements:
 
   - Regarding security we'd need to introduce a rate limit, similar to the staging service, as well as tightening up the allowed cross-domain origins (currently it's open).
   - The Knex orm will already sanitize sql inputs but we can add some logical checks before we try to make db calls, such as rejecting anything over a certain length or anything with non-alphabetic characters
-  - Also integer IDs have the flaw of potentially allowing bad actors to iterate through the database. If sorting by id is important in ways UUIDs cant provide, there's always [ULID](https://medium.com/@juniooor/ulid-universally-unique-lexicographically-sortable-identifier-5544e3391660) which provides the best of both 
+  - Also integer IDs have the flaw of potentially allowing bad actors to iterate through the database. If sorting by id is important in ways UUIDs cant provide, there's always [ULID](https://medium.com/@juniooor/ulid-universally-unique-lexicographically-sortable-identifier-5544e3391660) which provides the best of both
 
 - **Use Redux for state management**
   - Although fantastic, Redux was a bit overkill for this usecase and opted to use a Zustand as a simple state manager
