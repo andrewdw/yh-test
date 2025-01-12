@@ -67,11 +67,13 @@ Requirements:
 
   - I'd double check that all join columns are indexed properly.
   - We could also add a simple in-memory cache (either locally if or with Redis) to store/serve infrequently changing items (like filter names) and invalidate it maybe every hour or so.
+  - I don't love how the query calculates all of the filter counts on each request. This should be a seperate cached query, or precomputed periodically, or even could be a Materialized View in Postgres
 
 - **How can you improve security and reduce latency?**
 
   - Regarding security we'd need to introduce a rate limit, similar to the staging service, as well as tightening up the allowed cross-domain origins (currently it's open).
   - The Knex orm will already sanitize sql inputs but we can add some logical checks before we try to make db calls, such as rejecting anything over a certain length or anything with non-alphabetic characters
+  - Also integer IDs have the flaw of potentially allowing bad actors to iterate through the database. If sorting by id is important in ways UUIDs cant provide, there's always [ULID](https://medium.com/@juniooor/ulid-universally-unique-lexicographically-sortable-identifier-5544e3391660) which provides the best of both 
 
 - **Use Redux for state management**
   - Although fantastic, Redux was a bit overkill for this usecase and opted to use a Zustand as a simple state manager
